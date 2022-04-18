@@ -15,7 +15,14 @@ function sendHttpRequest(method, url, body) {
     xhr.responseType = "json";
 
     xhr.onload = function () {
-      resolve(xhr.response);
+      xhr.response >= 200 && xhr.response < 300
+        ? resolve(xhr.response)
+        : reject(new Error("Something went wrong!"));
+    };
+
+    // handling error
+    xhr.onerror = function () {
+      reject(new Error("No internet connection"));
     };
 
     /*
@@ -32,11 +39,12 @@ function sendHttpRequest(method, url, body) {
 }
 
 async function fetchPosts() {
-  const responseData = await sendHttpRequest(
-    "GET",
-    "https://jsonplaceholder.typicode.com/posts"
-  );
-  /*
+  try {
+    const responseData = await sendHttpRequest(
+      "GET",
+      "https://jsonplaceholder.typicode.com/psts"
+    );
+    /*
     using response key to response data from API
 
     parse convert JSON data to JavaScript array
@@ -50,15 +58,19 @@ async function fetchPosts() {
 
     const listOfPost = xhr.response;
   */
-  const listOfPost = responseData;
-  listOfPost.forEach((post) => {
-    const postEl = document.importNode(postTemplate.content, true);
-    postEl.querySelector("h2").textContent = post.title.toUpperCase();
-    postEl.querySelector("p").textContent = post.body;
-    // add the ID to looking the right ID for each post
-    postEl.querySelector("li").id = post.id;
-    listElement.append(postEl);
-  });
+    const listOfPost = responseData;
+    listOfPost.forEach((post) => {
+      const postEl = document.importNode(postTemplate.content, true);
+      postEl.querySelector("h2").textContent = post.title.toUpperCase();
+      postEl.querySelector("p").textContent = post.body;
+      // add the ID to looking the right ID for each post
+      postEl.querySelector("li").id = post.id;
+      listElement.append(postEl);
+    });
+  } catch (error) {
+    // message here will get the data from xhr.onload()
+    alert(error.message);
+  }
 }
 
 async function createPost(title, content) {
