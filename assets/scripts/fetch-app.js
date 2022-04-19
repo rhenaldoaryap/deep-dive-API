@@ -23,10 +23,18 @@ function sendHttpRequest(method, url, body) {
     */
   return fetch(url, {
     method: method,
+    body: body,
+
+    /*
+    if we use the formData, we don't have to parse it to stringify
+    and tell he headers type to the server that we sending a JSON data.
+    two those things automatically done by the formData, instead we just have to
+    pass the body inside of body key see line 26
+
     body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
-    },
+    }, */
   })
     .then((response) => {
       if (response.status >= 200 && response.status < 300) {
@@ -71,7 +79,17 @@ async function createPost(title, content) {
     userId: userId,
   };
 
-  sendHttpRequest("POST", "https://jsonplaceholder.typicode.com/posts", post);
+  // playing around with formData
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("body", content);
+  formData.append("userId", userId);
+
+  sendHttpRequest(
+    "POST",
+    "https://jsonplaceholder.typicode.com/posts",
+    formData
+  );
 }
 
 fetchButton.addEventListener("click", fetchPosts);
